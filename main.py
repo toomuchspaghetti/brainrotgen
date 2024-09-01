@@ -5,10 +5,17 @@ from os import listdir
 from random import randint, random, choice
 from math import sin, ceil
 
-moviepy.config.FFMPEG_BINARY = "C:\\Users\\olivier\\Desktop\\Brainrotgen\\ffmpeg-2024-08-28-git-b730defd52-full_build\\bin\\ffmpeg.exe"
+moviepy.config.FFMPEG_BINARY = "ffmpeg-2024-08-28-git-b730defd52-full_build\\bin\\ffmpeg.exe"
+
+cant_wait_to_meet_you = False
 
 def get_brainrot():
-    #return VideoFileClip("brainrot/sigma.mp4")
+    global cant_wait_to_meet_you
+
+    if cant_wait_to_meet_you:
+        cant_wait_to_meet_you = False
+        return VideoFileClip("brainrot/skibiditoilet.mp4")
+    
     return VideoFileClip(f"brainrot/{choice(listdir("brainrot"))}")
 
 WIDTH = int(540/2)
@@ -17,13 +24,16 @@ HALF_WIDTH = int(WIDTH/2)
 HALF_HEIGHT = int(HEIGHT/2)
 AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT = 10
 
-
-
 def random_horizontal_anchor():
     return choice(['left', 'center', 'right'])
 
 def random_vertical_anchor():
     return choice(['top', 'center', 'bottom'])
+
+def maybe_invert_colors(clip):
+    if maybe(3):
+        return vfx.invert_colors(clip)
+    return clip
 
 def get_main_brainrot():
     brainrots = [main_brainrot_processing(get_brainrot()) for i in range(AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT)]
@@ -35,8 +45,10 @@ def get_main_brainrot():
 
 def get_special_brainrot():
     brainrot = get_brainrot().fx(vfx.resize, width=HALF_WIDTH)
+
+    brainrot = maybe_invert_colors(brainrot)
     
-    if maybe(6):
+    if maybe(8):
         degrees = 90 * (1 if maybe() else -1)
         brainrot = vfx.rotate(brainrot.add_mask(), lambda t: sin(t) * degrees)
     
@@ -136,14 +148,14 @@ def get_uber_brainrot():
     
     start = 3
     
-    for i in range(30):
+    for i in range(35):
         brainrots.append(get_special_brainrot().set_start(start))
-        start += 2 + random()
+        start += 1 + random()
         
     return CompositeVideoClip(brainrots, size=(WIDTH, HEIGHT))
 
-for i in range(5):
-    get_uber_brainrot().write_videofile(f"{randint(1000, 9999)}.mp4", fps=24)
+for i in range(6):
+    get_uber_brainrot().write_videofile(f"{randint(1000, 9999)}.mp4", fps=15)
 
 # get_main_brainrot().write_videofile(f"{randint(1000, 9999)}.mp4", fps=24)
     
