@@ -67,18 +67,6 @@ def get_special_brainrot():
     if maybe(5):
         b = random() + 1
         brainrot = vfx.resize(brainrot, lambda t: 1.5 + sin(t*b))
-    
-    # match randint(0, 2):
-    #     case 0:
-    #         brainrot = brainrot.set_position((random_horizontal_anchor(), random_vertical_anchor()))
-    #     case 1:
-    #         horizontal_anchor = random_horizontal_anchor()
-            
-    #         brainrot = brainrot.set_position(lambda t: (horizontal_anchor, sin(t) * HALF_HEIGHT / 2))
-    #     case 2:
-    #         vertical_anchor = random_vertical_anchor()
-            
-    #         brainrot = brainrot.set_position(lambda t: (sin(t) * HALF_WIDTH / 2, vertical_anchor))
             
     return brainrot
 
@@ -88,60 +76,13 @@ def maybe(odds_against_you = 1):
 def random_horizontal_anchor():
     return choice(["left", "center", "right"])
 
+def normal_brainrot_processing(brainrot):
+    return brainrot.set_position('center', 'center').fx(vfx.resize, width=WIDTH)
+
 def main_brainrot_processing(brainrot):
-    brainrot = vfx.speedx(brainrot, max(brainrot.duration / 10 + random() / 5, 0.75)).set_position('center', 'center').fx(vfx.resize, width=WIDTH)
+    brainrot = normal_brainrot_processing(vfx.speedx(brainrot, max(brainrot.duration / 10 + random() / 5, 0.75)))
     
     return brainrot
-
-
-# def get_brainrot():
-#     brainrots = listdir("brainrot")
-#     brainrot = VideoFileClip(f"brainrot/{brainrots[randint(0, len(brainrots) - 1)]}")
-#     if randint(0, 2):
-#         brainrot = brainrot.fx(vfx.resize, width=THIRD)
-#     else:
-#         brainrot = brainrot.fx(vfx.resize, width=WIDTH)
-#         brainrot = brainrot.fx(vfx.speedx, random() * 2 + 0.9)
-#         brainrot = brainrot.set_opacity(0.5)
-#         return brainrot 
-    
-#     if maybe():
-#         if maybe():
-#             brainrot = brainrot.set_position(('center', random_vertical_position()))
-#         else:
-#             horizontal = random_horizontal_position()
-#             brainrot = brainrot.set_position(lambda t: (horizontal, sin(t) * 100)) 
-#     else:
-#         brainrot = brainrot.set_position(random_horizontal_position(), random_vertical_position())
-    
-#     if maybe():
-#         brainrot = brainrot.crossfadein(1).crossfadeout(1)
-        
-#     if not randint(0, 5):
-#         brainrot = brainrot.fx(vfx.invert_colors)
-        
-#     brainrot = brainrot.fx(vfx.speedx, random() * 2 + 0.9)
-    
-#     if maybe():
-#         brainrot = brainrot.crossfadein(randint(1, 5))
-        
-#     if maybe():
-#         brainrot = brainrot.crossfadeout(randint(1, 5))
-        
-#     if not randint(0, 7):
-#         brainrot = brainrot.rotate(135)
-
-#     if maybe():
-#         brainrot = brainrot.fx(vfx.mirror_x)
-#         # if maybe():
-#         #    brainrot = brainrot.fx(vfx.mirror_y)
-            
-#     if not randint(0, 5):
-#         rotation_speed = random() * 3
-#         brainrot = brainrot.fx(vfx.rotate, lambda t: sin(t*rotation_speed) * 360)
-    
-#     return brainrot
-
 
 def get_uber_brainrot():
     brainrots = [get_main_brainrot()]
@@ -154,16 +95,24 @@ def get_uber_brainrot():
         
     return CompositeVideoClip(brainrots, size=(WIDTH, HEIGHT))
 
-
 def compilation_style_brainrot():
-    return concatenate_videoclips([main_brainrot_processing(get_brainrot()) for i in range(AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT)], method="compose")
+    return normal_brainrot_processing([main_brainrot_processing(get_brainrot()) for i in range(AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT)], method="compose")
 
 def grid_style_brainrot(side_length):
     return clips_array([[vfx.resize(compilation_style_brainrot(), width=int(WIDTH/side_length)) for i in range(side_length)] for i in range(side_length)])
 
-for i in range(5):
-    #brainrot = get_main_brainrot()
-    brainrot = get_uber_brainrot()
-    #brainrot = grid_style_brainrot(2)
+styles = {
+    "uber": get_uber_brainrot,
+    "compilation": compilation_style_brainrot,
+    "grid": grid_style_brainrot
+}
 
-    brainrot.write_videofile(f"output/{randint(1000, 9999)}.mp4", fps=15)
+style = input(f"what style? ({"/".join(styles.keys)}) >")
+
+if style in styles:
+    for i in range(int(input("how many times? >"))):
+        brainrot = styles[style]()
+
+        brainrot.write_videofile(f"output/{randint(1000, 9999)}.mp4", fps=15)
+else:
+    print("idk what that is")
