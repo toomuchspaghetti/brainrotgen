@@ -154,8 +154,16 @@ def get_uber_brainrot():
         
     return CompositeVideoClip(brainrots, size=(WIDTH, HEIGHT))
 
-for i in range(6):
-    get_uber_brainrot().write_videofile(f"{randint(1000, 9999)}.mp4", fps=15)
 
-# get_main_brainrot().write_videofile(f"{randint(1000, 9999)}.mp4", fps=24)
-    
+def compilation_style_brainrot():
+    return concatenate_videoclips([main_brainrot_processing(get_brainrot()) for i in range(AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT)], method="compose")
+
+def grid_style_brainrot(side_length):
+    return clips_array([[vfx.resize(compilation_style_brainrot(), width=int(WIDTH/side_length)) for i in range(side_length)] for i in range(side_length)])
+
+for i in range(5):
+    #brainrot = get_main_brainrot()
+    brainrot = get_uber_brainrot()
+    #brainrot = grid_style_brainrot(2)
+
+    brainrot.write_videofile(f"output/{randint(1000, 9999)}.mp4", fps=15)
