@@ -14,15 +14,17 @@ def get_brainrot():
 
     if cant_wait_to_meet_you:
         cant_wait_to_meet_you = False
-        return VideoFileClip("brainrot/skibiditoilet.mp4")
+        return VideoFileClip("brainrot/Todger.mp4")
     
     return VideoFileClip(f"brainrot/{choice(listdir("brainrot"))}")
 
 WIDTH = int(540/2)
 HEIGHT = int(WIDTH/9*16)
 HALF_WIDTH = int(WIDTH/2)
+THIRD_WIDTH = int(WIDTH/3)
 HALF_HEIGHT = int(HEIGHT/2)
 AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT = 10
+AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE = 40
 
 def random_horizontal_anchor():
     return choice(['left', 'center', 'right'])
@@ -43,15 +45,15 @@ def get_main_brainrot():
     
     return concatenate_videoclips(brainrots, method="compose")
 
-def get_special_brainrot():
-    brainrot = get_brainrot().fx(vfx.resize, width=HALF_WIDTH)
+def get_special_brainrot(le_width):
+    brainrot = get_brainrot().fx(vfx.resize, width=le_width)
 
     brainrot = maybe_invert_colors(brainrot)
     
-    if maybe(8):
-        degrees = 90 * (1 if maybe() else -1)
-        brainrot = vfx.rotate(brainrot.add_mask(), lambda t: sin(t) * degrees)
-    
+    if maybe(5):
+        b = random() + 1
+        brainrot = vfx.resize(brainrot, lambda t: 0.75 + sin(t*b) / 2)
+
     if maybe(5):
         if maybe():
             horizontal_anchor = random_horizontal_anchor()
@@ -64,10 +66,10 @@ def get_special_brainrot():
     else:
         brainrot = brainrot.set_position((random_horizontal_anchor(), random_vertical_anchor()))
     
-    if maybe(5):
-        b = random() + 1
-        brainrot = vfx.resize(brainrot, lambda t: 1.5 + sin(t*b))
-            
+    if maybe(8):
+        degrees = 90 * (1 if maybe() else -1)
+        brainrot = vfx.rotate(brainrot.add_mask(), lambda t: sin(t) * degrees)
+
     return brainrot
 
 def maybe(odds_against_you = 1):
@@ -90,27 +92,50 @@ def get_uber_brainrot():
     start = 3
     
     for i in range(35):
-        brainrots.append(get_special_brainrot().set_start(start))
+        brainrots.append(get_special_brainrot(HALF_WIDTH).set_start(start))
         start += 1 + random()
         
     return CompositeVideoClip(brainrots, size=(WIDTH, HEIGHT))
 
 def compilation_style_brainrot():
-    return normal_brainrot_processing([main_brainrot_processing(get_brainrot()) for i in range(AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT)], method="compose")
+    return concatenate_videoclips([normal_brainrot_processing(get_brainrot()) for i in range(AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT)], method="compose")
 
 def grid_style_brainrot(side_length):
     return clips_array([[vfx.resize(compilation_style_brainrot(), width=int(WIDTH/side_length)) for i in range(side_length)] for i in range(side_length)])
 
+def sigma_style_brainrot():
+    brainrots = []
+
+    for i in range(AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE):
+        brainrot = normal_brainrot_processing(get_brainrot())
+        safe_duration = brainrot.duration - 0.1
+        random_start = max(random() * (safe_duration - 10), 0)
+        brainrot = brainrot.subclip(random_start, min(safe_duration, random_start + 10))
+        brainrots.append(brainrot)
+
+    sigma_brainrot = vfx.speedx(concatenate_videoclips(brainrots, method="compose"), 1.5)
+
+    time_between_special_brainrots = sigma_brainrot.duration / (AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE+2)
+
+    sigma_brainrots = [sigma_brainrot]
+    
+    for i in range(AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE):
+        special_brainrot = get_special_brainrot(THIRD_WIDTH).set_start((i + 1) * time_between_special_brainrots)
+        special_brainrot = vfx.speedx(special_brainrot, special_brainrot.duration / time_between_special_brainrots / 6)
+        sigma_brainrots.append(special_brainrot)
+
+    return CompositeVideoClip(sigma_brainrots, size=(WIDTH, HEIGHT))
 styles = {
     "uber": get_uber_brainrot,
     "compilation": compilation_style_brainrot,
-    "grid": grid_style_brainrot
+    "grid": grid_style_brainrot,
+    "sigma": sigma_style_brainrot,
 }
 
-style = input(f"what style? ({"/".join(styles.keys)}) >")
+style = input(f"what style? ({"/".join(styles.keys())}) > ")
 
 if style in styles:
-    for i in range(int(input("how many times? >"))):
+    for i in range(int(input("how many times? > "))):
         brainrot = styles[style]()
 
         brainrot.write_videofile(f"output/{randint(1000, 9999)}.mp4", fps=15)

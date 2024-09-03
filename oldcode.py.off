@@ -1,0 +1,48 @@
+
+# def get_brainrot():
+#     brainrots = listdir("brainrot")
+#     brainrot = VideoFileClip(f"brainrot/{brainrots[randint(0, len(brainrots) - 1)]}")
+#     if randint(0, 2):
+#         brainrot = brainrot.fx(vfx.resize, width=THIRD)
+#     else:
+#         brainrot = brainrot.fx(vfx.resize, width=WIDTH)
+#         brainrot = brainrot.fx(vfx.speedx, random() * 2 + 0.9)
+#         brainrot = brainrot.set_opacity(0.5)
+#         return brainrot 
+    
+#     if maybe():
+#         if maybe():
+#             brainrot = brainrot.set_position(('center', random_vertical_position()))
+#         else:
+#             horizontal = random_horizontal_position()
+#             brainrot = brainrot.set_position(lambda t: (horizontal, sin(t) * 100)) 
+#     else:
+#         brainrot = brainrot.set_position(random_horizontal_position(), random_vertical_position())
+    
+#     if maybe():
+#         brainrot = brainrot.crossfadein(1).crossfadeout(1)
+        
+#     if not randint(0, 5):
+#         brainrot = brainrot.fx(vfx.invert_colors)
+        
+#     brainrot = brainrot.fx(vfx.speedx, random() * 2 + 0.9)
+    
+#     if maybe():
+#         brainrot = brainrot.crossfadein(randint(1, 5))
+        
+#     if maybe():
+#         brainrot = brainrot.crossfadeout(randint(1, 5))
+        
+#     if not randint(0, 7):
+#         brainrot = brainrot.rotate(135)
+
+#     if maybe():
+#         brainrot = brainrot.fx(vfx.mirror_x)
+#         # if maybe():
+#         #    brainrot = brainrot.fx(vfx.mirror_y)
+            
+#     if not randint(0, 5):
+#         rotation_speed = random() * 3
+#         brainrot = brainrot.fx(vfx.rotate, lambda t: sin(t*rotation_speed) * 360)
+    
+#     return brainrot
