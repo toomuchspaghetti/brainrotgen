@@ -24,7 +24,8 @@ HALF_WIDTH = int(WIDTH/2)
 THIRD_WIDTH = int(WIDTH/3)
 HALF_HEIGHT = int(HEIGHT/2)
 AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT = 10
-AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE = 40
+AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE = 20
+AMOUNT_OF_SPECIAL_BRAINROTS_IN_SIGMA_BRAINROT_STYLE = 30
 
 def random_horizontal_anchor():
     return choice(['left', 'center', 'right'])
@@ -115,13 +116,13 @@ def sigma_style_brainrot():
 
     sigma_brainrot = vfx.speedx(concatenate_videoclips(brainrots, method="compose"), 1.5)
 
-    time_between_special_brainrots = sigma_brainrot.duration / (AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE+2)
+    time_between_special_brainrots = sigma_brainrot.duration / (AMOUNT_OF_SPECIAL_BRAINROTS_IN_SIGMA_BRAINROT_STYLE+3)
 
     sigma_brainrots = [sigma_brainrot]
     
-    for i in range(AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE):
+    for i in range(AMOUNT_OF_SPECIAL_BRAINROTS_IN_SIGMA_BRAINROT_STYLE):
         special_brainrot = get_special_brainrot(THIRD_WIDTH).set_start((i + 1) * time_between_special_brainrots)
-        special_brainrot = vfx.speedx(special_brainrot, special_brainrot.duration / time_between_special_brainrots / 6)
+        special_brainrot = vfx.speedx(special_brainrot, max(special_brainrot.duration / time_between_special_brainrots / 3, 1))
         sigma_brainrots.append(special_brainrot)
 
     return CompositeVideoClip(sigma_brainrots, size=(WIDTH, HEIGHT))
@@ -138,6 +139,6 @@ if style in styles:
     for i in range(int(input("how many times? > "))):
         brainrot = styles[style]()
 
-        brainrot.write_videofile(f"output/{randint(1000, 9999)}.mp4", fps=15)
+        brainrot.write_videofile(f"output/{randint(1000, 9999)}{style}.mp4", fps=15)
 else:
     print("idk what that is")
