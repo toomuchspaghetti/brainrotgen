@@ -24,8 +24,8 @@ HALF_WIDTH = int(WIDTH/2)
 THIRD_WIDTH = int(WIDTH/3)
 HALF_HEIGHT = int(HEIGHT/2)
 AMOUNT_OF_BRAINROTS_IN_MAIN_BRAINROT = 10
-AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE = 20
-AMOUNT_OF_SPECIAL_BRAINROTS_IN_SIGMA_BRAINROT_STYLE = 30
+AMOUNT_OF_BRAINROTS_IN_SIGMA_BRAINROT_STYLE = 10
+AMOUNT_OF_SPECIAL_BRAINROTS_IN_SIGMA_BRAINROT_STYLE = 25
 
 def random_horizontal_anchor():
     return choice(['left', 'center', 'right'])
@@ -51,7 +51,7 @@ def get_special_brainrot(le_width):
 
     brainrot = maybe_invert_colors(brainrot)
     
-    if maybe(5):
+    if maybe(4):
         b = random() + 1
         brainrot = vfx.resize(brainrot, lambda t: 0.75 + sin(t*b) / 2)
 
@@ -67,9 +67,9 @@ def get_special_brainrot(le_width):
     else:
         brainrot = brainrot.set_position((random_horizontal_anchor(), random_vertical_anchor()))
     
-    if maybe(8):
-        degrees = 90 * (1 if maybe() else -1)
-        brainrot = vfx.rotate(brainrot.add_mask(), lambda t: sin(t) * degrees)
+    # if maybe(8):
+    #     degrees = 90 * (1 if maybe() else -1)
+    #     brainrot = vfx.rotate(brainrot.add_mask(), lambda t: sin(t) * degrees)
 
     return brainrot
 
@@ -104,6 +104,49 @@ def compilation_style_brainrot():
 def grid_style_brainrot(side_length):
     return clips_array([[vfx.resize(compilation_style_brainrot(), width=int(WIDTH/side_length)) for i in range(side_length)] for i in range(side_length)])
 
+def lobotomy(clip):
+    safe_duration = clip.duration - 0.1
+
+    points = [0, 6]
+
+    while True:
+        if points[-1] >= safe_duration:
+            points[-1] = safe_duration
+            break
+
+        points.append(points[-1] + (random() * 1.5 + 0.1) * 3)
+
+        
+
+    subclips = []
+
+    for i in range(len(points) - 1):
+        subclips.append(clip.subclip(points[i], points[i + 1]))
+    
+    for i in range(len(subclips)):
+        number = i + 1
+
+        if not number % 2:
+            subclips[i] = vfx.invert_colors(subclips[i])
+        #if not number % 5:
+        #    subclips[i] = vfx.colorx(subclips[i], lambda t: (sin(t) + 1.1) * 2)
+
+
+    lobotomized = concatenate_videoclips(subclips, method="compose")
+
+    #sounds_with_lobotomy = [lobotomized.audio]
+
+    #print("hi", lobotomized.audio)
+
+    sounds_with_lobotomy = []
+
+    for i in range(1, len(points)):
+        sounds_with_lobotomy.append(AudioFileClip("sfx/lobotomy.mp3").set_start(points[i]))
+    
+    lobotomized = lobotomized.set_audio(CompositeAudioClip(sounds_with_lobotomy))
+
+    return lobotomized
+
 def sigma_style_brainrot():
     brainrots = []
 
@@ -121,11 +164,11 @@ def sigma_style_brainrot():
     sigma_brainrots = [sigma_brainrot]
     
     for i in range(AMOUNT_OF_SPECIAL_BRAINROTS_IN_SIGMA_BRAINROT_STYLE):
-        special_brainrot = get_special_brainrot(THIRD_WIDTH).set_start((i + 1) * time_between_special_brainrots)
+        special_brainrot = get_special_brainrot(HALF_WIDTH).set_start((i + 1) * time_between_special_brainrots)
         special_brainrot = vfx.speedx(special_brainrot, max(special_brainrot.duration / time_between_special_brainrots / 3, 1))
         sigma_brainrots.append(special_brainrot)
 
-    return CompositeVideoClip(sigma_brainrots, size=(WIDTH, HEIGHT))
+    return lobotomy(CompositeVideoClip(sigma_brainrots, size=(WIDTH, HEIGHT)))
 styles = {
     "uber": get_uber_brainrot,
     "compilation": compilation_style_brainrot,
