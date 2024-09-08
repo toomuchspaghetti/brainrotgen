@@ -3,7 +3,7 @@ import moviepy.video.fx.all as vfx
 import moviepy
 from os import listdir
 from random import randint, random, choice
-from math import sin, ceil
+from math import sin, ceil, cos
 
 moviepy.config.FFMPEG_BINARY = "ffmpeg-2024-08-28-git-b730defd52-full_build\\bin\\ffmpeg.exe"
 
@@ -51,7 +51,7 @@ def get_special_brainrot(le_width):
 
     brainrot = maybe_invert_colors(brainrot)
     
-    if maybe(4):
+    if maybe(2):
         b = random() + 1
         brainrot = vfx.resize(brainrot, lambda t: 0.75 + sin(t*b) / 2)
 
@@ -128,22 +128,26 @@ def lobotomy(clip):
 
         if not number % 2:
             subclips[i] = vfx.invert_colors(subclips[i])
-        #if not number % 5:
-        #    subclips[i] = vfx.colorx(subclips[i], lambda t: (sin(t) + 1.1) * 2)
+        if not number % 5:
+            subclips[i] = vfx.colorx(subclips[i], 3)
+        if not number % 4:
+            subclips[i] = vfx.mirror_x(subclips[i])
+        if not number & 7:
+            subclips[i] = vfx.resize(subclips[i], lambda t: cos(t) / 3 + 0.66)
 
 
     lobotomized = concatenate_videoclips(subclips, method="compose")
 
-    #sounds_with_lobotomy = [lobotomized.audio]
+    sounds_with_lobotomy = [lobotomized.audio]
 
     #print("hi", lobotomized.audio)
 
-    sounds_with_lobotomy = []
+    #sounds_with_lobotomy = []
 
     for i in range(1, len(points)):
         sounds_with_lobotomy.append(AudioFileClip("sfx/lobotomy.mp3").set_start(points[i]))
     
-    lobotomized = lobotomized.set_audio(CompositeAudioClip(sounds_with_lobotomy))
+    lobotomized = lobotomized.set_audio(CompositeAudioClip(sounds_with_lobotomy).set_duration(safe_duration))
 
     return lobotomized
 
