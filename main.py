@@ -1,5 +1,6 @@
 from moviepy.editor import *
 import moviepy.video.fx.all as vfx
+import moviepy.audio.fx.all as sfx
 import moviepy
 from os import listdir
 from random import randint, random, choice
@@ -107,7 +108,7 @@ def grid_style_brainrot(side_length):
 def lobotomy(clip):
     safe_duration = clip.duration - 0.1
 
-    points = [0, 6]
+    points = [0, 6 + random()]
 
     while True:
         if points[-1] >= safe_duration:
@@ -145,7 +146,13 @@ def lobotomy(clip):
     #sounds_with_lobotomy = []
 
     for i in range(1, len(points)):
-        sounds_with_lobotomy.append(AudioFileClip("sfx/lobotomy.mp3").set_start(points[i]))
+        sounds_with_lobotomy.append(
+            sfx.volumex(
+                vfx.speedx(
+                    AudioFileClip("sfx/lobotomy.mp3").set_start(points[i]), random() / 3 + 1
+                ), 0.5
+            )
+        )
     
     lobotomized = lobotomized.set_audio(CompositeAudioClip(sounds_with_lobotomy).set_duration(safe_duration))
 
